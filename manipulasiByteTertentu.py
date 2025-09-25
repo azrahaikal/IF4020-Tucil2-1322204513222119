@@ -21,7 +21,7 @@ for i in range(0, len(data)):
 
 
 # ----------------------------------------------------------------
-print("\n\n### di bawah ini adalah setelah manipulasi ###\n")
+print("### di bawah ini adalah setelah manipulasi ###")
 iByte = 1
 nLSB = 8        # asumsi ini tidak pernah nol
 message = "10101010"
@@ -37,3 +37,22 @@ print(f"{format(data[0], '08b')} ... {listedData[0]}")
         
 
 # 01001001 = string --> idx 0 ada di paling kiri
+
+# bikin file audio yang baru
+# gabungkan kembali list of char ke integer
+reconstructed = []
+for i in range(len(listedData)):
+    bitstring = "".join(listedData[i])   # misal: ['0','1','0','0','1','0','0','1'] -> "01001001"
+    reconstructed.append(int(bitstring, 2))  # string -> integer
+
+# ubah list of integer ke bytes
+newAudio = bytes(reconstructed)
+print(f"listedData = {type(listedData)} ... newAudio = {type(newAudio)} .. original data = {type(data)}")
+
+print(f"\nByte ke-{iByte} berhasil diubah:\nBefore = {format(data[iByte], '08b')}\nAfter = {format(newAudio[iByte], '08b')}")
+
+# tulis ke file baru
+# with open("output.mp3", "wb") as f:
+#     f.write(newAudio)
+
+# print("File baru berhasil ditulis: output.mp3")
