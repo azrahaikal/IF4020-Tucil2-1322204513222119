@@ -1,5 +1,5 @@
 import numpy as np
-import librosa # Ganti scipy.io.wavfile dengan librosa
+import librosa
 
 def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
     """
@@ -54,18 +54,42 @@ def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
         print(f"Terjadi error: {e}")
         return None
 
-# --- Contoh Penggunaan ---
+# import numpy as np
+# from pydub import AudioSegment
 
-# Ganti dengan path file MP3 Anda
-cover_audio_file_mp3 = "SpongebobGator.mp3"
-stego_audio_file_mp3 = "SpongebobGator3.mp3"
-
-psnr = hitung_psnr_mp3(cover_audio_file_mp3, stego_audio_file_mp3)
-
-if psnr is not None:
-    print(f"Nilai PSNR adalah: {psnr:.2f} dB")
+# def mp3_to_array(file_mp3):
+#     # Baca MP3 pakai pydub
+#     audio = AudioSegment.from_mp3(file_mp3)
     
-    if psnr < 30:
-        print("Peringatan: Kualitas audio mengalami kerusakan yang berarti (PSNR < 30 dB).")
-    else:
-        print("Kualitas audio cukup baik (PSNR >= 30 dB).")
+#     # Ambil raw data (bytes) lalu ubah ke numpy array
+#     samples = np.array(audio.get_array_of_samples())
+    
+#     if audio.channels == 2:
+#         samples = samples.reshape((-1, 2))
+    
+#     # Normalisasi ke float64 (-1.0 s/d 1.0)
+#     samples = samples.astype(np.float64) / (2**(8*audio.sample_width - 1))
+    
+#     return samples, audio.frame_rate
+
+# def hitung_psnr_mp3(file_cover, file_stego):
+#     # Konversi kedua file MP3 ke array numpy
+#     cover, sr1 = mp3_to_array(file_cover)
+#     stego, sr2 = mp3_to_array(file_stego)
+    
+#     if sr1 != sr2:
+#         raise ValueError("Sample rate kedua file audio tidak sama")
+    
+#     # Samakan panjang sinyal
+#     min_len = min(len(cover), len(stego))
+#     cover = cover[:min_len]
+#     stego = stego[:min_len]
+    
+#     # Hitung PSNR
+#     numerator = np.sum(stego**2)
+#     denominator = np.sum(stego**2 + cover**2 - 2*stego*cover)
+    
+#     psnr = 10 * np.log10(numerator / denominator)
+#     return psnr
+
+# print(hitung_psnr_mp3("lofi7menit.mp3", "output.mp3"))
