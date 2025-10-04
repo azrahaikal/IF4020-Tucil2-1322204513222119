@@ -21,17 +21,6 @@ def play_mp3(path_audio):
         print(f"❌ Gagal memutar audio: {e}")
 
 def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
-    """
-    Menghitung PSNR untuk file audio (termasuk MP3)
-    berdasarkan formula MSE.
-
-    Args:
-        path_audio_asli (str): Path ke file audio asli (cover).
-        path_audio_stego (str): Path ke file audio stego.
-
-    Returns:
-        float: Nilai PSNR dalam dB.
-    """
     try:
         # 1. Membaca data audio menggunakan librosa. Ini akan mendekode audio
         #    ke dalam format PCM (sebagai float array yang dinormalisasi ke [-1, 1]).
@@ -66,17 +55,12 @@ def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
         return None
 
 def key_to_seed(key):
-    """Converts a string key into a numerical seed."""
     seed = 0
     for char in key:
         seed = (seed * 31 + ord(char)) & 0xFFFFFFFF
     return seed
 
 def calculate_random_start_index(message_size_in_bits, m, cover_data_length, seed):
-    """
-    Calculates a random starting index based on the cover data's byte length.
-    Fungsi ini harus memberikan hasil yang sama persis saat menyisipkan dan mengekstrak.
-    """
     print("\n--- Calculating Random Start Index for Extraction ---")
     r = cover_data_length
     header_spesial_size_in_bytes = 35
@@ -94,11 +78,9 @@ def calculate_random_start_index(message_size_in_bits, m, cover_data_length, see
     return Irand
 
 def bytes_ke_biner(data_bytes):
-    """Mengubah data bytes menjadi string biner ('0101...')."""
     return ''.join(format(byte, '08b') for byte in data_bytes)
 
 def biner_ke_bytes(biner_str):
-    """Mengubah string biner ('0101...') kembali menjadi data bytes."""
     return bytes(int(biner_str[i:i+8], 2) for i in range(0, len(biner_str), 8))
 
 # =============================================================
@@ -106,18 +88,15 @@ def biner_ke_bytes(biner_str):
 # =============================================================
 
 def encrypt_key(data_bytes, key_bytes):
-    """Mengulang kunci (bytes) agar panjangnya sama dengan data."""
     key_len = len(key_bytes)
     return bytes(key_bytes[i % key_len] for i in range(len(data_bytes)))
 
 def encrypt(data_bytes, key):
-    """Mengenkripsi bytes menggunakan Vigenère."""
     key_bytes = key.encode('utf-8')
     extended_key = encrypt_key(data_bytes, key_bytes)
     return bytes((data_byte + key_byte) % 256 for data_byte, key_byte in zip(data_bytes, extended_key))
 
 def decrypt(cipher_bytes, key):
-    """Mendekripsi bytes menggunakan Vigenère."""
     key_bytes = key.encode('utf-8')
     extended_key = encrypt_key(cipher_bytes, key_bytes)
     return bytes((cipher_byte - key_byte + 256) % 256 for cipher_byte, key_byte in zip(cipher_bytes, extended_key))
@@ -130,7 +109,6 @@ def decrypt(cipher_bytes, key):
 HEADER_TYPE_BYTES = 10 # 10 bytes = 80 bits
 
 def sisipkan_file(cover_data, message_data, isEncrypt, isRandom, m, key, tipe):
-    """Menyembunyikan file (message_data) di dalam file cover (cover_data)."""
     if isEncrypt:
         message_data = encrypt(message_data, key)
 
@@ -183,7 +161,6 @@ def sisipkan_file(cover_data, message_data, isEncrypt, isRandom, m, key, tipe):
 
 
 def ekstrak_file(stego_data, key):
-    """Mengekstrak file tersembunyi dari data stego."""
     try:
         # 1. Ekstrak header spesial dari 35 byte pertama (selalu 1 LSB)
         stego_bytes = bytes(stego_data)
@@ -333,7 +310,6 @@ def handle_ekstrak():
         print(f"❌ Terjadi error saat ekstraksi: {e}")
 
 def handle_psnr():
-    """Fungsi UI untuk menghitung dan menampilkan nilai PSNR."""
     print("\n--- Cek Kualitas Steganografi (PSNR) ---")
     try:
         # 1. Minta input dari pengguna
@@ -365,7 +341,6 @@ def handle_psnr():
         print(f"❌ Terjadi error tak terduga: {e}")
 
 def handle_mp3():
-    """Fungsi UI untuk memutar file audio."""
     print("\n--- Putar File Audio ---")
     try:
         # 1. Minta input dari pengguna
