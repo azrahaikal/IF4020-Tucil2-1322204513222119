@@ -23,7 +23,7 @@ def play_mp3(path_audio):
 def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
     """
     Menghitung PSNR untuk file audio (termasuk MP3)
-    berdasarkan formula dari gambar.
+    berdasarkan formula MSE.
 
     Args:
         path_audio_asli (str): Path ke file audio asli (cover).
@@ -33,36 +33,28 @@ def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
         float: Nilai PSNR dalam dB.
     """
     try:
-        # 1. Membaca data audio menggunakan librosa
-        # librosa.load mengembalikan data audio (sebagai float) dan sample rate
-        # sr=None memastikan sample rate asli tetap dipertahankan
+        # 1. Membaca data audio menggunakan librosa. Ini akan mendekode audio
+        #    ke dalam format PCM (sebagai float array yang dinormalisasi ke [-1, 1]).
         audio_asli, sr_asli = librosa.load(path_audio_asli, sr=None)
         audio_stego, sr_stego = librosa.load(path_audio_stego, sr=None)
 
-        # 2. Validasi
-        # if sr_asli != sr_stego or len(audio_asli) != len(audio_stego):
-        #     raise ValueError("File audio asli dan stego harus memiliki sample rate dan panjang yang sama.")
+        # Menyamakan panjang array audio untuk perhitungan
+        min_len = min(len(audio_asli), len(audio_stego))
+        audio_asli = audio_asli[:min_len]
+        audio_stego = audio_stego[:min_len]
 
-        # 3. Menghitung kekuatan sinyal (P0 dan P1)
-        # Karena librosa sudah mengembalikan float, kita tidak perlu konversi tipe lagi
-        
-        # P0: Kekuatan sinyal audio asli
-        P0 = np.mean(audio_asli**2)
-        
-        # P1: Kekuatan sinyal audio stego
-        P1 = np.mean(audio_stego**2)
+        # 2. Menghitung Mean Squared Error (MSE)
+        # x[n] = audio_asli, y[n] = audio_stego
+        mse = np.mean((audio_asli - audio_stego) ** 2)
 
-        if P0 == P1:
+        # Jika MSE adalah 0, file identik, PSNR tak terhingga.
+        if mse == 0:
             return float('inf')
 
-        # 4. Menerapkan formula PSNR
-        numerator = P1**2
-        denominator = (P1 - P0)**2
-        
-        if denominator == 0:
-            return float('inf')
-
-        psnr_value = 10 * np.log10(numerator / denominator)
+        # 3. Menghitung PSNR
+        # MAX = 1.0 karena librosa menormalisasi audio ke rentang [-1, 1].
+        MAX_SQUARE = 1.0**2
+        psnr_value = 10 * np.log10(MAX_SQUARE / mse)
         
         return psnr_value
 
@@ -70,7 +62,7 @@ def hitung_psnr_mp3(path_audio_asli, path_audio_stego):
         print(f"Error: Salah satu file tidak ditemukan.")
         return None
     except Exception as e:
-        print(f"Terjadi error: {e}")
+        print(f"Terjadi error saat menghitung PSNR: {e}")
         return None
 
 def key_to_seed(key):
